@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Radio Voix du Silence Inter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    /* Dark mode styles */
+    body.dark {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #eee;
+    }
+    /* Light mode styles */
+    body.light {
+      background: #f0f0f0;
+      color: #222;
+    }
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(15, 32, 39, 0.85);
+      backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
+      z-index: 1000;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    body.light header {
+      background: rgba(255,255,255,0.85);
+      border-bottom-color: rgba(0,0,0,0.1);
+      color: #222;
+    }
+    header h1 {
+      font-weight: 600;
+      font-size: 1.5rem;
+      color: #ff4d4f;
+    }
+    nav { position: relative; }
+    .toolbar {
+      list-style: none;
+      display: flex;
+      gap: 2rem;
+      font-weight: 600;
+      font-size: 1rem;
+      color: inherit;
+    }
+    .toolbar li { position: relative; }
+    .toolbar li:hover { color: #ff4d4f; }
+    .dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: rgba(44,83,100,0.95);
+      border-radius: 8px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+      padding: 1rem 1.5rem;
+      min-width: 220px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: 0.25s ease;
+      font-size: 0.9rem;
+      color: #eee;
+    }
+    body.light .dropdown {
+      background: rgba(255,255,255,0.95);
+      color: #222;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    .toolbar li:hover > .dropdown {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    main {
+      position: relative;
+      margin-top: 70px;
+      padding: 2rem 1rem 4rem;
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+      transition: color 0.3s ease;
+    }
+    section.content-block {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(15,32,39,0.3);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    body.light section.content-block {
+      background: #fff;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      color: #222;
+    }
+    main h2 {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      border-left: 4px solid #ff4d4f;
+      padding-left: 12px;
+      font-size: 1.4rem;
+    }
+    audio {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      margin-bottom: 0.5rem;
+    }
+    .now-playing {
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+    .song-history {
+      background: rgba(255,255,255,0.05);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      transition: background 0.3s ease;
+    }
+    body.light .song-history {
+      background: #f9f9f9;
+      color: #222;
+    }
+    .song-history ul {
+      list-style: inside;
+      padding-left: 1rem;
+    }
+    .song-history li {
+      margin-bottom: 0.5rem;
+    }
+    .mini-player {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #1d1d1d;
+      color: white;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+      z-index: 999;
+    }
+    .mini-player audio {
+      width: 100%;
+    }
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      color: #aaa;
+      font-size: 0.9rem;
+      margin-top: auto;
+      transition: color 0.3s ease;
+    }
+    body.light footer {
+      color: #555;
+    }
+    /* New styles for wider sections */
+    .content-block.wide {
+      max-width: 1120px; /* wider than before */
+      margin-left: -80px; /* half of (1120 - 960) = 80 */
+      margin-right: -80px;
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 40px rgba(15, 32, 39, 0.5);
+      padding: 2rem;
+      border-radius: 12px;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    body.light .content-block.wide {
+      background: #fafafa;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+      color: #222;
+    }
+    @media (max-width: 1180px) {
+      .content-block.wide {
+        max-width: 95vw;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 1.5rem 1rem;
+      }
+    }
+    /* Dark/Light Mode Toggle Button */
+    #mode-toggle {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background-color: #ff4d4f;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(255,77,79,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1100;
+      transition: background-color 0.3s ease;
+    }
+    #mode-toggle:hover {
+      background-color: #e04345;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Radio Voix du Silence Inter</h1>
+    <nav>
+      <ul class="toolbar">
+        <li><span>About Us</span><div class="dropdown"><p>We broadcast music, discussions, and culture. Amplifying voices that matter most.</p></div></li>
+        <li><span>Schedule</span><div class="dropdown"><ul><li><strong>Mon–Fri:</strong> 8 AM – 10 AM</li><li><strong>Sat:</strong> 2 PM – 5 PM</li><li><strong>Sun:</strong> 6 PM – 8 PM</li></ul></div></li>
+        <li><span>Hosts</span><div class="dropdown"><ul><li><strong>Charlo</strong> – Lead Host</li><li><strong>Guest Hosts</strong> – Artists & Musicians</li></ul></div></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="content-block">
+      <h2>🎧 Listen Live</h2>
+      <audio id="main-player" controls crossorigin playsinline preload="none">
+        <source src="http://161.97.134.93:2080/listen/radio_voix_du_silence_inter/radio.mp3" type="audio/mpeg" />
+        Your browser does not support the audio element.
+      </audio>
+      <div class="now-playing">
+        Now Playing: <span id="now-playing">Loading...</span>
+      </div>
+      <div class="song-history">
+        <h3>Recent Songs</h3>
+        <ul id="song-history-list">
+          <li>Loading song history...</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-block wide">
+      <h2>📲 Connect with Us</h2>
+      <p>We’d love to hear from you! Reach out through:</p>
+      <ul>
+        <li>📧 Email: <a href="mailto:contact@voixdusilence.radio" style="color:#ffaaaa">contact@voixdusilence.radio</a></li>
+        <li>💬 WhatsApp: <a href="https://wa.me/1234567890" style="color:#ffaaaa">+1 (234) 567-890</a></li>
+        <li>📷 <a href="https://instagram.com" style="color:#ffaaaa">Instagram</a>, 📘 <a href="https://facebook.com" style="color:#ffaaaa">Facebook</a>, ▶️ <a href="https://youtube.com" style="color:#ffaaaa">YouTube</a></li>
+      </ul>
+    </section>
+
+    <section class="content-block wide">
+      <h2>💬 Join the Conversation</h2>
+      <iframe src="https://www3.cbox.ws/box/?boxid=3531536&boxtag=DPK9G9" width="100%" height="300" allowtransparency="yes" frameborder="0" marginheight="0" marginwidth="0" scrolling="auto"></iframe>
+    </section>
+  </main>
+
+  <div class="mini-player">
+    <audio controls>
+      <source src="http://161.97.134.93:2080/listen/radio_voix_du_silence_inter/radio.mp3" type="audio/mpeg" />
+    </audio>
+  </div>
+
+  <footer>
+    &copy; 2025 Radio Voix du Silence Inter. All rights reserved.
+  </footer>
+
+  <!-- Dark/Light Mode Toggle Button -->
+  <button id="mode-toggle" aria-label="Toggle Dark/Light Mode" title="Toggle Dark/Light Mode">☀️</button>
+
+  <script>
+    // Initialize theme from localStorage or default to dark
+    function setTheme(theme) {
+      document.body.classList.remove('dark', 'light');
+      document.body.classList.add(theme);
+      const btn = document.getElementById('mode-toggle');
+      btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+      localStorage.setItem('theme', theme);
+    }
+
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+
+    document.getElementById('mode-toggle').addEventListener('click', () => {
+      const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
+    });
+
+    async function updateNowPlaying() {
+      const nowPlayingElem = document.getElementById('now-playing');
+      const historyList = document.getElementById('song-history-list');
+
+      try {
+        const response = await fetch('http://161.97.134.93:2080/api/nowplaying/radio_voix_du_silence_inter');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+
+        const now = data.now_playing?.song;
+        if (now) {
+          nowPlayingElem.textContent = `${now.artist || 'Unknown Artist'} - ${now.title || 'Unknown Title'}`;
+        } else {
+          nowPlayingElem.textContent = 'No song currently playing';
+        }
+
+        const history = data.song_history?.slice(0, 5) || [];
+        historyList.innerHTML = '';
+        if (history.length) {
+          history.forEach(item => {
+            const artist = item.song.artist || 'Unknown Artist';
+            const title = item.song.title || 'Unknown Title';
+            const li = document.createElement('li');
+            li.textContent = `${artist} – ${title}`;
+            historyList.appendChild(li);
+          });
+        } else {
+          historyList.innerHTML = '<li>No recent songs available</li>';
+        }
+
+      } catch (error) {
+        console.error('Error fetching now playing data:', error);
+        nowPlayingElem.textContent = 'Unable to load now playing info';
+        historyList.innerHTML = '<li>Unable to load recent songs</li>';
+      }
+    }
+
+    updateNowPlaying();
+    setInterval(updateNowPlaying, 15000);
+  </script>
+</body>
+</html>
